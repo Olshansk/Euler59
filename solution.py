@@ -38,21 +38,35 @@ num_encrypted_chars = len(encryped_chars)
 
 while True:
 
+  t0 = time.time()
+
   multiplier = num_encrypted_chars / (len(key))
   mod = num_encrypted_chars % len(key)
   long_key = multiplier * key + key[0:mod]
+
+  print("A: {}".format(time.time() - t0))
+  t0 = time.time()
 
   decrypted_word = [c ^ k for c,k in zip(encryped_chars,long_key)]
   message = ''.join([chr(x) for x in decrypted_word])
   words = [word.strip().lower() for word in message.split(' ')]
 
+  print("B: {}".format(time.time() - t0))
+  t0 = time.time()
+
   counter = collections.Counter(words)
   top_five = counter.keys()
+
+  print("C: {}".format(time.time() - t0))
 
   if (len(set(top_five).intersection(english_words)) > 5):
     break
 
+  t0 = time.time()
+
   key = increment_and_wrap_key(key, ascii_a, ascii_z + 1)
+
+  print("D: {}".format(time.time() - t0))
 
 message_sum = sum(bytearray(message))
 
