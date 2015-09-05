@@ -2,6 +2,7 @@ import io
 import urllib2
 import re
 import time
+import collections
 
 def increment_and_wrap(curr_val, min_val, max_val):
   return min_val if curr_val + 1 >= max_val else curr_val + 1
@@ -50,33 +51,20 @@ i = 0
 num_valid_words = 0
 char_regex = re.compile('[^a-zA-Z]')
 
-while i < len(encryped_chars):
+while True:
+  message = decrypt_message(key, encryped_chars, 0, len(encryped_chars))
+  words = message.split(' ')
 
-  if encryped_chars[i] ^ key[ki] == ascii_space:
-    word_candidate = decrypt_message(key, encryped_chars, last_i, i)
-    stripped_word_candidate = char_regex.sub('', word_candidate).lower()
+  counter = collections.Counter(words)
+  top_five = counter.most_common(5)
 
-    if len(word_candidate) > 0 and stripped_word_candidate in english_words:
-      num_valid_words += 1
-      last_i = i + 1
-    else:
-      if num_valid_words > 5:
-        break
-      key = increment_and_wrap_key(key, ascii_a, ascii_z + 1)
-      num_valid_words = 0
-      i = -1
-      ki = -1 
-      last_i = 0
+  top_five_availability = [word in english_words for (word, frequency) in top_five]
 
-  i += 1
-  ki = increment_and_wrap(ki, 0, len(key))
+  if(all(top_five_availability)):
+    print top_five
+    break
 
-  if i == len(encryped_chars):
-    key = increment_and_wrap_key(key, ascii_a, ascii_z + 1)
-    i = 0
-    ki = 0
-    last_i = 0
-    num_valid_words = 0
+  key = increment_and_wrap_key(key, ascii_a, ascii_z + 1)
 
 message = decrypt_message(key, encryped_chars, 0, len(encryped_chars))
 message_sum = sum(bytearray(message))
