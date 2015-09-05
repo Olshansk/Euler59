@@ -35,7 +35,7 @@ t0 = time.time()
 english_words_list_link = 'http://www-01.sil.org/linguistics/wordlists/english/wordlist/wordsEn.txt'
 cipher_text_file = 'p059_cipher.txt'
 
-english_words = [word.strip() for word in set(urllib2.urlopen(english_words_list_link).read().split('\n'))]
+english_words = set([word.strip() for word in set(urllib2.urlopen(english_words_list_link).read().split('\n'))])
 encryped_chars = [int(i) for i in open(cipher_text_file, 'r').read().split(',')]
 
 ascii_space = 32
