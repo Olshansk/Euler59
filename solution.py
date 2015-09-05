@@ -52,11 +52,20 @@ num_valid_words = 0
 char_regex = re.compile('[^a-zA-Z]')
 
 while True:
+
+  t2 = time.time()
+
   message = decrypt_message(key, encryped_chars, 0, len(encryped_chars))
   words = message.split(' ')
 
+  print "A: {}".format(time.time() - t2)
+  t2 = time.time()
+
   counter = collections.Counter(words)
   top_five = counter.most_common(5)
+
+  print "B: {}".format(time.time() - t2)
+  t2 = time.time()
 
   top_five_availability = [word in english_words for (word, frequency) in top_five]
 
@@ -65,6 +74,9 @@ while True:
     break
 
   key = increment_and_wrap_key(key, ascii_a, ascii_z + 1)
+
+  print "C: {}".format(time.time() - t2)
+  t2 = time.time()
 
 message = decrypt_message(key, encryped_chars, 0, len(encryped_chars))
 message_sum = sum(bytearray(message))
