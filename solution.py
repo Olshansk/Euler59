@@ -35,40 +35,26 @@ i = 0
 num_valid_words = 0
 char_regex = re.compile('[^a-zA-Z]')
 num_encrypted_chars = len(encryped_chars)
+decrypted_message = [0 for x in xrange(num_encrypted_chars)]
 
 while True:
 
-  t0 = time.time()
+  for x in xrange(num_encrypted_chars):
+    decrypted_message[x] = chr(encryped_chars[x] ^ key[x % 3])
 
-  multiplier = num_encrypted_chars / (len(key))
-  mod = num_encrypted_chars % len(key)
-  long_key = multiplier * key + key[0:mod]
-
-  print("A: {}".format(time.time() - t0))
-  t0 = time.time()
-
-  decrypted_word = [c ^ k for c,k in zip(encryped_chars,long_key)]
-  message = ''.join([chr(x) for x in decrypted_word])
-  words = [word.strip().lower() for word in message.split(' ')]
-
-  print("B: {}".format(time.time() - t0))
-  t0 = time.time()
-
+  concated_message = ''.join(decrypted_message)
+  
+  words = [word.strip().lower() for word in concated_message.split(' ')]
+  
   counter = collections.Counter(words)
   top_five = counter.keys()
-
-  print("C: {}".format(time.time() - t0))
 
   if (len(set(top_five).intersection(english_words)) > 5):
     break
 
-  t0 = time.time()
-
   key = increment_and_wrap_key(key, ascii_a, ascii_z + 1)
 
-  print("D: {}".format(time.time() - t0))
-
-message_sum = sum(bytearray(message))
+message_sum = sum(bytearray(decrypted_message))
 
 t1 = time.time()
 delta_t = t1 - t0
@@ -76,4 +62,4 @@ delta_t = t1 - t0
 print "EXECUTION TIME: {}".format(delta_t)
 print "KEY: {}".format(key)
 print "MESSAGE SUM: {}".format(message_sum)
-print "MESSAGE: {}".format(message) 
+print "MESSAGE: {}".format(concated_message) 
