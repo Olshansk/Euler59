@@ -14,29 +14,13 @@ def increment_and_wrap_key(curr_key, min_val, max_val):
       break
   return curr_key
 
-def rotate(l,n):
-    return l[n:] + l[:n]
-
-def decrypt_message(key, encrypted_message, first_index, last_index):
-  num_encrypted_chars = len(encrypted_message)
-  multiplier = num_encrypted_chars / (len(key)) + 1
-  rotation = first_index % len(key)
-
-  long_key = rotate(multiplier * key, rotation)[0: num_encrypted_chars]
-
-  encrypted_word = encrypted_message[first_index:last_index]
-  decrypted_word = [c ^ k for c,k in zip(encrypted_word,long_key)]
-  word_candidate = ''.join([chr(x) for x in decrypted_word])
-
-  return word_candidate
-
 t0 = time.time()
 
-english_words_list_link = 'http://www-01.sil.org/linguistics/wordlists/english/wordlist/wordsEn.txt'
 cipher_text_file = 'p059_cipher.txt'
-
-english_words = set([word.strip() for word in set(urllib2.urlopen(english_words_list_link).read().split('\n'))])
 encryped_chars = [int(i) for i in open(cipher_text_file, 'r').read().split(',')]
+
+# top 10 most common according to https://en.wikipedia.org/wiki/Most_common_words_in_English
+english_words = set(['the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have'])
 
 ascii_space = 32
 ascii_a = 97
@@ -50,35 +34,26 @@ last_i = 0
 i = 0
 num_valid_words = 0
 char_regex = re.compile('[^a-zA-Z]')
+num_encrypted_chars = len(encryped_chars)
 
 while True:
 
-  t2 = time.time()
+  multiplier = num_encrypted_chars / (len(key))
+  mod = num_encrypted_chars % len(key)
+  long_key = multiplier * key + key[0:mod]
 
-  message = decrypt_message(key, encryped_chars, 0, len(encryped_chars))
-  words = message.split(' ')
-
-  print "A: {}".format(time.time() - t2)
-  t2 = time.time()
+  decrypted_word = [c ^ k for c,k in zip(encryped_chars,long_key)]
+  message = ''.join([chr(x) for x in decrypted_word])
+  words = [word.strip().lower() for word in message.split(' ')]
 
   counter = collections.Counter(words)
-  top_five = counter.most_common(5)
+  top_five = counter.keys()
 
-  print "B: {}".format(time.time() - t2)
-  t2 = time.time()
-
-  top_five_availability = [word in english_words for (word, frequency) in top_five]
-
-  if(all(top_five_availability)):
-    print top_five
+  if (len(set(top_five).intersection(english_words)) > 5):
     break
 
   key = increment_and_wrap_key(key, ascii_a, ascii_z + 1)
 
-  print "C: {}".format(time.time() - t2)
-  t2 = time.time()
-
-message = decrypt_message(key, encryped_chars, 0, len(encryped_chars))
 message_sum = sum(bytearray(message))
 
 t1 = time.time()
